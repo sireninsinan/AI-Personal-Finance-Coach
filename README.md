@@ -1,81 +1,104 @@
-# Intercom
+# 🧠 TRAC Finance Coach — AI Crypto Advisor
 
-This repository is a reference implementation of the **Intercom** stack on Trac Network for an **internet of agents**.
+> An AI-powered personal finance coach for TRAC & crypto holders, built on the Intercom P2P agent network.
 
-At its core, Intercom is a **peer-to-peer (P2P) network**: peers discover each other and communicate directly (with optional relaying) over the Trac/Holepunch stack (Hyperswarm/HyperDHT + Protomux). There is no central server required for sidechannel messaging.
+[![Built on Intercom](https://img.shields.io/badge/Built%20on-Intercom-00ffa3?style=flat-square)](https://github.com/Trac-Systems/intercom)
+[![Fork](https://img.shields.io/badge/Fork%20of-Trac--Systems%2Fintercom-7b61ff?style=flat-square)](https://github.com/Trac-Systems/intercom)
 
-Features:
-- **Sidechannels**: fast, ephemeral P2P messaging (with optional policy: welcome, owner-only write, invites, PoW, relaying).
-- **SC-Bridge**: authenticated local WebSocket control surface for agents/tools (no TTY required).
-- **Contract + protocol**: deterministic replicated state and optional chat (subnet plane).
-- **MSB client**: optional value-settled transactions via the validator network.
+---
 
-Additional references: https://www.moltbook.com/post/9ddd5a47-4e8d-4f01-9908-774669a11c21 and moltbook m/intercom
+## 💡 What is TRAC Finance Coach?
 
-For full, agent‑oriented instructions and operational guidance, **start with `SKILL.md`**.  
-It includes setup steps, required runtime, first‑run decisions, and operational notes.
+A lightweight AI agent that acts as your **crypto financial advisor** for TRAC and the Trac ecosystem. Users can ask natural-language questions about their holdings and get:
 
-## Awesome Intercom
+- 📊 **Risk Assessment** — Low / Medium / High scoring based on conversation context
+- 💬 **Hold vs. Move Signals** — Framework-based recommendations
+- 📈 **DCA & Strategy Tips** — Time-tested approaches for volatile assets
+- 🔍 **Wallet Activity Comparison** — How your behavior compares to avg TRAC holders
+- 📖 **Tokenomics Explanations** — TRAC, TAP, Pipe, Intercom — all explained simply
 
-For a curated list of agentic Intercom apps check out: https://github.com/Trac-Systems/awesome-intercom
+> ⚠️ **Not financial advice.** All outputs are educational and for informational purposes only. Always do your own research.
 
-## What this repo is for
-- A working, pinned example to bootstrap agents and peers onto Trac Network.
-- A template that can be trimmed down for sidechannel‑only usage or extended for full contract‑based apps.
+---
 
-## How to use
-Use the **Pear runtime only** (never native node).  
-Follow the steps in `SKILL.md` to install dependencies, run the admin peer, and join peers correctly.
+## 🚀 Live App
 
-## Architecture (ASCII map)
-Intercom is a single long-running Pear process that participates in three distinct networking "planes":
-- **Subnet plane**: deterministic state replication (Autobase/Hyperbee over Hyperswarm/Protomux).
-- **Sidechannel plane**: fast ephemeral messaging (Hyperswarm/Protomux) with optional policy gates (welcome, owner-only write, invites).
-- **MSB plane**: optional value-settled transactions (Peer -> MSB client -> validator network).
+Open `index.html` in your browser — no server needed. Pure HTML/CSS/JS.
 
-```text
-                          Pear runtime (mandatory)
-                pear run . --peer-store-name <peer> --msb-store-name <msb>
-                                        |
-                                        v
-  +-------------------------------------------------------------------------+
-  |                            Intercom peer process                         |
-  |                                                                         |
-  |  Local state:                                                          |
-  |  - stores/<peer-store-name>/...   (peer identity, subnet state, etc)    |
-  |  - stores/<msb-store-name>/...    (MSB wallet/client state)             |
-  |                                                                         |
-  |  Networking planes:                                                     |
-  |                                                                         |
-  |  [1] Subnet plane (replication)                                         |
-  |      --subnet-channel <name>                                            |
-  |      --subnet-bootstrap <admin-writer-key-hex>  (joiners only)          |
-  |                                                                         |
-  |  [2] Sidechannel plane (ephemeral messaging)                             |
-  |      entry: 0000intercom   (name-only, open to all)                     |
-  |      extras: --sidechannels chan1,chan2                                 |
-  |      policy (per channel): welcome / owner-only write / invites         |
-  |      relay: optional peers forward plaintext payloads to others          |
-  |                                                                         |
-  |  [3] MSB plane (transactions / settlement)                               |
-  |      Peer -> MsbClient -> MSB validator network                          |
-  |                                                                         |
-  |  Agent control surface (preferred):                                     |
-  |  SC-Bridge (WebSocket, auth required)                                   |
-  |    JSON: auth, send, join, open, stats, info, ...                       |
-  +------------------------------+------------------------------+-----------+
-                                 |                              |
-                                 | SC-Bridge (ws://host:port)   | P2P (Hyperswarm)
-                                 v                              v
-                       +-----------------+            +-----------------------+
-                       | Agent / tooling |            | Other peers (P2P)     |
-                       | (no TTY needed) |<---------->| subnet + sidechannels |
-                       +-----------------+            +-----------------------+
+### Features:
+- Real-time AI chat interface
+- Quick-action prompt buttons
+- Animated risk meter per response
+- Session question counter
+- Mobile-responsive design
+- Built with Intercom P2P agent architecture in mind
 
-  Optional for local testing:
-  - --dht-bootstrap "<host:port,host:port>" overrides the peer's HyperDHT bootstraps
-    (all peers that should discover each other must use the same list).
+---
+
+## 📸 Screenshots
+
+> *(Add your own screenshots here after running the app)*
+
+![TRAC Finance Coach Screenshot](./screenshot.png)
+
+---
+
+## 🛠 How to Run
+
+```bash
+# Clone this repo
+git clone https://github.com/YOUR_USERNAME/intercom
+
+# Open the app
+open index.html
+# or just double-click index.html in your file explorer
+```
+
+No dependencies. No build step. No API keys needed for the demo.
+
+---
+
+## 🔗 Intercom Integration
+
+This app is designed as an Intercom agent. In a full deployment:
+
+1. The AI coach runs as an **Intercom agent** on the Trac P2P network
+2. Users connect their TRAC wallet address
+3. The agent pulls on-chain data via Intercom sidechannels
+4. Personalized risk scoring is computed in real-time
+
+The `SKILL.md` file documents the agent's capabilities for other Intercom agents.
+
+---
+
+## 📬 TRAC Payout Address
+
+```
+trac1gklwft2t72gywvgvgyrtnev8r8a976n97hmgdcykzq5yevy4jecsv5t4ve
+```
+
+> Replace the above with your actual Trac address to receive the 500 TNK payout.
+
+---
+
+## 📁 File Structure
+
+```
+intercom/
+├── index.html          # Main app — TRAC Finance Coach UI
+├── SKILL.md            # Agent skill file for Intercom agents
+├── README.md           # This file
+└── screenshot.png      # App screenshot (add yours)
 ```
 
 ---
-If you plan to build your own app, study the existing contract/protocol and remove example logic as needed (see `SKILL.md`).
+
+## 🌐 About Trac Systems
+
+- Upstream Intercom: https://github.com/Trac-Systems/intercom
+- Trac Network: https://trac.network
+- Awesome Intercom: https://github.com/Trac-Systems/awesome-intercom
+
+---
+
+*Built for the Intercom fork competition. Fork it, ship it, earn TNK.*
