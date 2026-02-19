@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TRAC Finance Coach — AI Crypto Advisor</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #00ffa3;
+    --accent2: #7b61ff;
+    --warn: #ff6b35;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,163,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,163,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 0 2.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .logo-icon {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #000;
+    font-family: var(--font-display);
+  }
+
+  .logo-text {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: -0.02em;
+  }
+
+  .logo-text span {
+    color: var(--accent);
+  }
+
+  .badge {
+    background: rgba(0,255,163,0.1);
+    border: 1px solid rgba(0,255,163,0.3);
+    color: var(--accent);
+    font-size: 0.65rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 100px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Hero */
+  .hero {
+    margin-bottom: 2.5rem;
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.7;
+    max-width: 520px;
+  }
+
+  /* Quick Actions */
+  .quick-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .quick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 2rem;
+  }
+
+  .quick-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.65rem 0.9rem;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+
+  .quick-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,255,163,0.05);
+  }
+
+  /* Chat window */
+  .chat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 480px;
+  }
+
+  .chat-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--surface2);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .chat-title {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    scroll-behavior: smooth;
+  }
+
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .msg {
+    display: flex;
+    gap: 0.75rem;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.user {
+    flex-direction: row-reverse;
+  }
+
+  .msg-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-family: var(--font-display);
+  }
+
+  .msg.bot .msg-avatar {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #000;
+  }
+
+  .msg.user .msg-avatar {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .msg-bubble {
+    max-width: 75%;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    line-height: 1.65;
+  }
+
+  .msg.bot .msg-bubble {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-top-left-radius: 2px;
+  }
+
+  .msg.user .msg-bubble {
+    background: rgba(0,255,163,0.08);
+    border: 1px solid rgba(0,255,163,0.2);
+    border-top-right-radius: 2px;
+    color: var(--accent);
+    text-align: right;
+  }
+
+  /* Risk meter inside message */
+  .risk-meter {
+    margin-top: 0.75rem;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+  }
+
+  .risk-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .risk-bar-wrap {
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+    margin-bottom: 0.35rem;
+  }
+
+  .risk-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s ease;
+  }
+
+  .risk-low .risk-bar { background: var(--accent); }
+  .risk-mid .risk-bar { background: #ffd700; }
+  .risk-high .risk-bar { background: var(--warn); }
+
+  .risk-val {
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .risk-low .risk-val { color: var(--accent); }
+  .risk-mid .risk-val { color: #ffd700; }
+  .risk-high .risk-val { color: var(--warn); }
+
+  /* Tags */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+  }
+
+  .tag {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+
+  .tag-green { border-color: var(--accent); color: var(--accent); background: rgba(0,255,163,0.07); }
+  .tag-purple { border-color: var(--accent2); color: var(--accent2); background: rgba(123,97,255,0.07); }
+  .tag-orange { border-color: var(--warn); color: var(--warn); background: rgba(255,107,53,0.07); }
+
+  /* Disclaimer */
+  .disclaimer-note {
+    margin-top: 0.6rem;
+    padding: 0.5rem 0.7rem;
+    background: rgba(255,107,53,0.06);
+    border-left: 2px solid var(--warn);
+    border-radius: 0 4px 4px 0;
+    font-size: 0.68rem;
+    color: var(--warn);
+    opacity: 0.85;
+  }
+
+  /* Input area */
+  .chat-input-area {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .chat-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.7rem 1rem;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    resize: none;
+    outline: none;
+    transition: border-color 0.15s;
+    line-height: 1.5;
+    min-height: 42px;
+    max-height: 120px;
+  }
+
+  .chat-input:focus {
+    border-color: var(--accent);
+  }
+
+  .chat-input::placeholder {
+    color: var(--muted);
+  }
+
+  .send-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: opacity 0.15s, transform 0.1s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover { opacity: 0.85; }
+  .send-btn:active { transform: scale(0.93); }
+
+  /* Wallet card */
+  .wallet-section {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 520px) {
+    .wallet-section { grid-template-columns: 1fr; }
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .stat-label {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--accent);
+  }
+
+  .stat-sub {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.68rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 0.5rem;
+  }
+
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  /* Typing indicator */
+  .typing {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0.6rem 0.9rem;
+  }
+
+  .typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    animation: blink 1.2s infinite;
+  }
+
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes blink {
+    0%, 60%, 100% { opacity: 0.2; }
+    30% { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">T∞</div>
+      <div class="logo-text">TRAC <span>Finance</span> Coach</div>
+    </div>
+    <div class="badge">⬡ Built on Intercom</div>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Your <em>AI-Powered</em><br>Crypto Coach</h1>
+    <p>Ask anything about your TRAC activity — risk assessment, hold/move signals, and strategy tips. Powered by Intercom P2P agents.</p>
+  </div>
+
+  <!-- Quick prompts -->
+  <div class="quick-label">⚡ Quick Questions</div>
+  <div class="quick-grid">
+    <button class="quick-btn" onclick="sendQuick(this.textContent)">Should I hold or move my TRAC?</button>
+    <button class="quick-btn" onclick="sendQuick(this.textContent)">How risky is my current activity?</button>
+    <button class="quick-btn" onclick="sendQuick(this.textContent)">Compare my wallet to avg TRAC holder</button>
+    <button class="quick-btn" onclick="sendQuick(this.textContent)">What's a good DCA strategy for TRAC?</button>
+    <button class="quick-btn" onclick="sendQuick(this.textContent)">Explain TRAC tokenomics simply</button>
+    <button class="quick-btn" onclick="sendQuick(this.textContent)">When should I take profits?</button>
+  </div>
+
+  <!-- Chat -->
+  <div class="chat-box">
+    <div class="chat-header">
+      <div class="status-dot"></div>
+      <div class="chat-title">TRAC AI Coach — Agent Online</div>
+    </div>
+    <div class="chat-messages" id="messages">
+      <div class="msg bot">
+        <div class="msg-avatar">AI</div>
+        <div class="msg-bubble">
+          👋 Gm! I'm your TRAC Finance Coach — an AI agent running on the Intercom P2P network.<br><br>
+          I can help you assess risk, analyze your holding patterns, and think through crypto strategy. Ask me anything, or pick a quick question above.
+          <div class="disclaimer-note">⚠️ Not financial advice. Always do your own research.</div>
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="userInput" placeholder="Ask about TRAC strategy, risk, or holdings..." rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+      <button class="send-btn" onclick="sendMessage()">↑</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="wallet-section">
+    <div class="stat-card">
+      <div class="stat-label">Demo Risk Score</div>
+      <div class="stat-value" id="riskScore">—</div>
+      <div class="stat-sub">Based on conversation context</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Questions Analyzed</div>
+      <div class="stat-value" id="qCount">0</div>
+      <div class="stat-sub">This session</div>
+    </div>
+  </div>
+
+  <footer>
+    <span>TRAC Finance Coach — Fork of <a href="https://github.com/Trac-Systems/intercom" target="_blank">Intercom</a> by Trac Systems</span>
+    <span>Built for Awesome Intercom</span>
+  </footer>
+</div>
+
+<script>
+  let qCount = 0;
+
+  const responses = {
+    hold: {
+      text: `Based on typical TRAC holder behavior patterns, here's a framework to think through the hold vs. move decision:
+
+<strong>Hold signals:</strong> You're early in your position, fundamentals haven't changed, and you have no immediate liquidity needs.
+
+<strong>Move signals:</strong> You've hit a personal target %, portfolio concentration is too high (>20% in one asset), or you need to rebalance.
+
+The Trac Network is still in early development — historically, conviction holders in infrastructure projects benefit from patience over frequent trading.`,
+      risk: { level: 'low', pct: 28, label: 'LOW RISK' },
+      tags: [{ text: 'HOLD SIGNAL', cls: 'tag-green' }, { text: 'DYOR', cls: 'tag-orange' }]
+    },
+    risk: {
+      text: `To assess your risk properly I'd need your actual wallet data, but here's a general framework:
+
+<strong>Low risk profile:</strong> TRAC is <10% of portfolio, bought DCA over time, not using leverage.
+
+<strong>Medium risk:</strong> TRAC is 10–30%, some concentrated buys at market highs.
+
+<strong>High risk:</strong> >30% concentration, leveraged positions, or short time horizon in a volatile market.
+
+Intercom agents can eventually connect to your wallet data for a real-time assessment.`,
+      risk: { level: 'mid', pct: 55, label: 'MEDIUM RISK' },
+      tags: [{ text: 'RISK ANALYSIS', cls: 'tag-purple' }, { text: 'PORTFOLIO', cls: 'tag-green' }]
+    },
+    compare: {
+      text: `Typical TRAC holder profile (estimated from on-chain patterns):
+
+• Average holding period: 8–14 months
+• Median wallet size: 2,000–15,000 TRAC
+• Most common behavior: Buy → hold → rarely trade
+
+If you're actively trading TRAC, you're in a minority. Most holders are conviction buyers waiting for the Trac Network to mature and gain adoption.
+
+How does your strategy compare?`,
+      risk: { level: 'low', pct: 35, label: 'MODERATE-LOW' },
+      tags: [{ text: 'BENCHMARK', cls: 'tag-purple' }, { text: 'ON-CHAIN', cls: 'tag-green' }]
+    },
+    dca: {
+      text: `DCA (Dollar Cost Averaging) works well for TRAC given its volatility profile:
+
+<strong>Suggested approach:</strong>
+1. Set a fixed weekly or bi-weekly buy amount you're comfortable losing entirely
+2. Ignore short-term price action — set calendar reminders and don't watch charts
+3. Review position size every 3 months
+
+For a nascent infrastructure token, DCA reduces your average entry and removes emotional decision-making from the equation.`,
+      risk: { level: 'low', pct: 20, label: 'LOW RISK' },
+      tags: [{ text: 'DCA STRATEGY', cls: 'tag-green' }, { text: 'LONG-TERM', cls: 'tag-purple' }]
+    },
+    tokenomics: {
+      text: `TRAC is the native token of the Trac Network — a Bitcoin-native Layer 1 protocol for programmable assets (TAP, Pipe, and more).
+
+Key points:
+• Fixed supply — no inflation
+• Used for fees, inscription, and network participation
+• Ecosystem includes TAP Protocol (token standard on Bitcoin), Intercom (agent communication layer), and IntercomSwap
+
+The value proposition is tied to Bitcoin L1 adoption of the Trac stack — high risk, but high upside if the ecosystem grows.`,
+      risk: { level: 'mid', pct: 48, label: 'MODERATE' },
+      tags: [{ text: 'BITCOIN L1', cls: 'tag-orange' }, { text: 'TOKENOMICS', cls: 'tag-purple' }]
+    },
+    profits: {
+      text: `Profit-taking strategy depends on your goals, but here's a common framework:
+
+<strong>Rule of thirds:</strong>
+• Sell 1/3 at 3x your entry
+• Sell another 1/3 at 10x
+• Let the last 1/3 ride indefinitely
+
+<strong>Time-based:</strong> Take 10–20% profits every 6 months if you're up, regardless of price.
+
+Most importantly — define your exit before you enter. Emotions cloud judgment when you're deep in profit or loss.`,
+      risk: { level: 'mid', pct: 42, label: 'MODERATE' },
+      tags: [{ text: 'PROFIT TAKING', cls: 'tag-green' }, { text: 'RISK MGMT', cls: 'tag-orange' }]
+    },
+    default: {
+      text: `Great question! As a TRAC Finance Coach running on Intercom, I can help with:
+
+• Hold/sell/move decisions based on general frameworks
+• Risk scoring for your crypto strategy
+• TRAC ecosystem and tokenomics breakdown
+• DCA and portfolio balance tips
+
+For personalized on-chain analysis, connect your wallet address and agents on the Intercom network can pull real-time data.
+
+What specifically would you like to explore?`,
+      risk: { level: 'low', pct: 30, label: 'ANALYZING...' },
+      tags: [{ text: 'AI AGENT', cls: 'tag-purple' }]
+    }
+  };
+
+  function getResponse(msg) {
+    const m = msg.toLowerCase();
+    if (m.includes('hold') || m.includes('move')) return responses.hold;
+    if (m.includes('risk') || m.includes('risky')) return responses.risk;
+    if (m.includes('compar') || m.includes('average') || m.includes('avg')) return responses.compare;
+    if (m.includes('dca') || m.includes('dollar cost') || m.includes('strategy')) return responses.dca;
+    if (m.includes('tokenomic') || m.includes('trac token') || m.includes('explain')) return responses.tokenomics;
+    if (m.includes('profit') || m.includes('sell') || m.includes('take')) return responses.profits;
+    return responses.default;
+  }
+
+  function appendMsg(who, html) {
+    const box = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = `msg ${who}`;
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.textContent = who === 'bot' ? 'AI' : 'U';
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = html;
+    div.appendChild(avatar);
+    div.appendChild(bubble);
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+    return bubble;
+  }
+
+  function buildBotHTML(resp) {
+    const riskClass = resp.risk.level === 'low' ? 'risk-low' : resp.risk.level === 'mid' ? 'risk-mid' : 'risk-high';
+    const tagsHTML = resp.tags.map(t => `<span class="tag ${t.cls}">${t.text}</span>`).join('');
+    return `${resp.text}
+      <div class="risk-meter ${riskClass}">
+        <div class="risk-label">Risk Assessment</div>
+        <div class="risk-bar-wrap"><div class="risk-bar" style="width:${resp.risk.pct}%"></div></div>
+        <div class="risk-val">${resp.risk.label}</div>
+      </div>
+      <div class="tags">${tagsHTML}</div>
+      <div class="disclaimer-note">⚠️ Not financial advice. For educational purposes only.</div>`;
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    input.style.height = 'auto';
+
+    appendMsg('user', msg);
+    qCount++;
+    document.getElementById('qCount').textContent = qCount;
+
+    // typing indicator
+    const box = document.getElementById('messages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'msg bot';
+    typingDiv.innerHTML = `<div class="msg-avatar">AI</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+    box.appendChild(typingDiv);
+    box.scrollTop = box.scrollHeight;
+
+    await new Promise(r => setTimeout(r, 900 + Math.random() * 600));
+    box.removeChild(typingDiv);
+
+    const resp = getResponse(msg);
+    appendMsg('bot', buildBotHTML(resp));
+
+    // update risk score display
+    const riskLabels = { low: '🟢 LOW', mid: '🟡 MED', high: '🔴 HIGH' };
+    document.getElementById('riskScore').textContent = riskLabels[resp.risk.level];
+  }
+
+  function sendQuick(text) {
+    document.getElementById('userInput').value = text;
+    sendMessage();
+  }
+</script>
+</body>
+</html>
